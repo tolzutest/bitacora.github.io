@@ -222,6 +222,10 @@
     function toggleMode() {
       document.body.classList.toggle("dark-mode");
     }
+        function limpiarCeldas() {
+      const cells = document.querySelectorAll("#bitacora td");
+      cells.forEach(cell => cell.innerText = "");
+    }
   </script>
 </body>
 </html>
