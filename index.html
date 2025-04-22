@@ -81,6 +81,33 @@
         display: none;
       }
     }
+
+    .photo-upload {
+      margin: 20px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .photo-upload input[type="file"] {
+      max-width: 200px;
+    }
+
+    .photo-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .photo-preview img {
+      max-width: 150px;
+      max-height: 150px;
+      object-fit: cover;
+      border: 1px solid var(--border-color);
+    }
   </style>
 </head>
 <body>
@@ -105,25 +132,22 @@
           <th>Descripción de la incidencia</th>
           <th>Tipo de primeros auxilios brindados</th>
           <th>Nombre de quien brindó la atención</th>
-          <th>Firma del responsable</th>
-          <th>Observaciones adicionales</th>
+          <th>Nombre y número del responsable </th>
+          <th>Materiales utilizados</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- 10 filas editables -->
-        <tr><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
-        <tr><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
-        <tr><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
-        <tr><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
-        <tr><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
-        <tr><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
-        <tr><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
-        <tr><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
-        <tr><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
-        <tr><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
-      </tbody>
+      <tbody></tbody>
     </table>
   </div>
+
+  <div class="photo-upload">
+    <label>Foto 1: <input type="file" accept="image/*" onchange="previewPhoto(event, 0)"></label>
+    <label>Foto 2: <input type="file" accept="image/*" onchange="previewPhoto(event, 1)"></label>
+    <label>Foto 3: <input type="file" accept="image/*" onchange="previewPhoto(event, 2)"></label>
+    <label>Foto 4: <input type="file" accept="image/*" onchange="previewPhoto(event, 3)"></label>
+  </div>
+
+  <div class="photo-preview" id="photoPreview"></div>
 
   <div class="button">
     <button onclick="window.print()">Imprimir Bitácora</button>
@@ -133,15 +157,46 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const tbody = document.querySelector("#bitacora tbody");
+      for (let i = 0; i < 10; i++) {
+        const row = document.createElement("tr");
+        for (let j = 0; j < 10; j++) {
+          const cell = document.createElement("td");
+          cell.contentEditable = true;
+          row.appendChild(cell);
+        }
+        tbody.appendChild(row);
+      }
+    });
+
+    function previewPhoto(event, index) {
+      const files = event.target.files;
+      if (files && files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          const container = document.getElementById("photoPreview");
+          if (container.children[index]) {
+            container.children[index].src = img.src;
+          } else {
+            container.appendChild(img);
+          }
+        };
+        reader.readAsDataURL(files[0]);
+      }
+    }
+
     async function descargarPDF() {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ orientation: 'landscape' });
-      doc.html(document.body, {
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+      await doc.html(document.body, {
         callback: function (doc) {
           doc.save("Bitacora_Incidencias_Tolzu.pdf");
         },
-        x: 10,
-        y: 10
+        x: 20,
+        y: 20
       });
     }
 
